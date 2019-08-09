@@ -8,7 +8,7 @@ mongoose.connect('mongodb+srv://samantha:mongo@cluster0-ogyq7.mongodb.net/omnist
   useNewUrlParser: true
 });
 
-server.use(express.json);
+server.use(express.json());
 server.use(routes);
 
 server.listen(3333);

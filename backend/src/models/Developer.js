@@ -14,9 +14,17 @@ const DevSchema = new Schema({
   avatar: {
     type: String,
     required: true
-  }
+  },
+  likes: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Developer'
+  }],
+  deslikes: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Developer'
+  }]
 }, {
   timestamps: true,
 });
 
-module.exports = model('Dev', DevSchema);
+module.exports = model('Developer', DevSchema);
