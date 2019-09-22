@@ -1,25 +1,37 @@
-const Developer = require('../models/Developer');
+const Dev = require('../models/Developer');
 
 module.exports = {
-  async store (request, responses) {
+  async store(request, response) {
+    
     const { user } = request.headers;
     const { idDev } = request.params;
 
-    const loggedDev = await Developer.findById(user);
-    const targetDev = await Developer.findById(idDev);
+    const loggedDev = await Dev.findById(user);
+    let targetDev = null
 
-    if (!targetDev) {
-      return responses.status(400).json({ error: 'Dev not exists' });
+    try {
+      targetDev = await Dev.findById(idDev);
+    } catch (error) {
+      return response.status(400).json({ error: 'Dev not exists' });
     }
 
     if (targetDev.likes.includes(loggedDev._id)) {
-      console.log('Deu match')
+      const loggedSocket = request.connectedUsers[user];
+      const targetSocket = request.connectedUsers[idDev];
+
+      if (loggedSocket) {
+        request.io.to(loggedSocket).emit('match', targetDev);
+      }
+
+      if (targetSocket) {
+        request.io.to(targetSocket).emit('match', loggedDev);
+      }
     }
 
     loggedDev.likes.push(targetDev._id);
 
-    await loggedDev.save()
+    await loggedDev.save();
 
-    return responses.json(loggedDev);
+    return response.json(loggedDev);
   }
-}
+};
